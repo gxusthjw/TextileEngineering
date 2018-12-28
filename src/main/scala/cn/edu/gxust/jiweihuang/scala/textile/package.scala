@@ -4,6 +4,7 @@ package object textile {
 
   /**
     * The fineness units of yarn, silk or fiber.
+    * The keywords {{{abstract}}} is used to prevent instantiate of class {{{FinenessUnits}}},
     *
     * @param weight the weight component of fineness units.
     * @param length the length component of fineness units.
@@ -127,12 +128,13 @@ package object textile {
   }
 
   class Fineness(val value: Double, val units: FinenessUnits) {
+    def apply: Double = value
 
     override def toString: String = units match {
-      case MetricNumber => s"Fineness($value, $MetricNumber)"
-      case Denier => s"Fineness($value, $Denier)"
-      case Tex => s"Fineness($value, $Tex)"
-      case DTex => s"Fineness($value, $DTex)"
+      case MetricNumber => s"Fineness($value, MetricNumber)"
+      case Denier => s"Fineness($value, Denier)"
+      case Tex => s"Fineness($value, Tex)"
+      case DTex => s"Fineness($value, DTex)"
       case _: FinenessUnits => s"Fineness($value, $units)"
     }
 
@@ -211,10 +213,11 @@ package object textile {
 
   final class Size(override val value: Double, override val units: LengthBased)
     extends Fineness(value, units) {
+
     override def toString: String = units match {
-      case Denier => s"Size($value, $Denier)"
-      case Tex => s"Size($value, $Tex)"
-      case DTex => s"Size($value, $DTex)"
+      case Denier => s"Size($value, Denier)"
+      case Tex => s"Size($value, Tex)"
+      case DTex => s"Size($value, DTex)"
       case _: LengthBased => s"Size($value, $units)"
     }
 
