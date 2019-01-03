@@ -4,7 +4,8 @@ package object textile {
 
   /**
     * The fineness units of yarn, silk or fiber.
-    * The keywords {{{abstract}}} is used to prevent instantiate of class {{{FinenessUnits}}},
+    * The keywords {{{abstract}}} is used to
+    * prevent instantiation of class {{{FinenessUnits}}},
     *
     * @param weight the weight component of fineness units.
     * @param length the length component of fineness units.
@@ -208,7 +209,6 @@ package object textile {
         case _: FinenessUnits => throw new IllegalArgumentException(s"${fineness.units} are not currently supported.")
       }
     }
-
   }
 
 }
