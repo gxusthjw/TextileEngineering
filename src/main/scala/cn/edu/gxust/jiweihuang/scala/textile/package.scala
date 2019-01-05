@@ -4,6 +4,8 @@ package object textile {
 
   /**
     * The fineness units of yarn, silk or fiber.
+    * The keywords {{{abstract}}} is used to
+    * prevent instantiation of class {{{FinenessUnits}}},
     *
     * @param weight the weight component of fineness units.
     * @param length the length component of fineness units.
@@ -38,7 +40,7 @@ package object textile {
   }
 
   /** Weight Based System */
-  abstract class WeightBased(override val weight: Double, override val length: Double)
+  abstract class WeightBased(weight: Double, length: Double)
     extends FinenessUnits(weight, length) {
 
     override def toString: String = s"WeightBased($weight, $length)"
@@ -61,7 +63,7 @@ package object textile {
   }
 
   /** Length Based System */
-  abstract class LengthBased(override val weight: Double, override val length: Double)
+  abstract class LengthBased(weight: Double, length: Double)
     extends FinenessUnits(weight, length) {
 
     override def toString: String = s"LengthBased($weight, $length)"
@@ -84,7 +86,7 @@ package object textile {
   }
 
   /** Linear Density System */
-  abstract class LinearDensity(override val weight: Double, override val length: Double)
+  abstract class LinearDensity(weight: Double, length: Double)
     extends LengthBased(weight, length) {
 
     override def toString: String = s"LinearDensity($weight, $length)"
@@ -127,12 +129,13 @@ package object textile {
   }
 
   class Fineness(val value: Double, val units: FinenessUnits) {
+    def apply: Double = value
 
     override def toString: String = units match {
-      case MetricNumber => s"Fineness($value, $MetricNumber)"
-      case Denier => s"Fineness($value, $Denier)"
-      case Tex => s"Fineness($value, $Tex)"
-      case DTex => s"Fineness($value, $DTex)"
+      case MetricNumber => s"Fineness($value, MetricNumber)"
+      case Denier => s"Fineness($value, Denier)"
+      case Tex => s"Fineness($value, Tex)"
+      case DTex => s"Fineness($value, DTex)"
       case _: FinenessUnits => s"Fineness($value, $units)"
     }
 
@@ -204,74 +207,6 @@ package object textile {
         case Tex => Fineness(fineness.value * (DTex.length / Tex.length), DTex)
         case DTex => Fineness(fineness.value, DTex)
         case _: FinenessUnits => throw new IllegalArgumentException(s"${fineness.units} are not currently supported.")
-      }
-    }
-
-  }
-
-  final class Size(override val value: Double, override val units: LengthBased)
-    extends Fineness(value, units) {
-    override def toString: String = units match {
-      case Denier => s"Size($value, $Denier)"
-      case Tex => s"Size($value, $Tex)"
-      case DTex => s"Size($value, $DTex)"
-      case _: LengthBased => s"Size($value, $units)"
-    }
-
-    override def canEqual(other: Any): Boolean = other.isInstanceOf[Size]
-
-    override def equals(other: Any): Boolean = other match {
-      case that: Size =>
-        super.equals(that) &&
-          value == that.value &&
-          units == that.units
-      case _ => false
-    }
-
-    override def hashCode(): Int = {
-      val state = Seq(super.hashCode(), value, units)
-      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-    }
-  }
-
-  object Size {
-    def apply(value: Double, units: LengthBased): Size = new Size(value, units)
-
-    def apply(value: Double, units: String): Size = {
-      units match {
-        case "Denier" => new Size(value, Denier)
-        case "Tex" => new Size(value, Tex)
-        case "DTex" => new Size(value, DTex)
-        case _: String => throw new IllegalArgumentException(s"$units are not currently supported.")
-      }
-    }
-
-    def unapply(arg: Size): Option[(Double, LengthBased)] = if (arg == null) None else Some(arg.value, arg.units)
-
-    def toDenier(size: Size): Size = {
-      size.units match {
-        case Denier => new Size(size.value, Denier)
-        case Tex => new Size(size.value * (Denier.length / Tex.length), Denier)
-        case DTex => new Size(size.value * (Denier.length / DTex.length), Denier)
-        case _: LengthBased => throw new IllegalArgumentException(s"${size.units} are not currently supported.")
-      }
-    }
-
-    def toTex(size: Size): Size = {
-      size.units match {
-        case Denier => new Size(size.value * (Tex.length / Denier.length), Tex)
-        case Tex => new Size(size.value, Tex)
-        case DTex => new Size(size.value * (Tex.length / DTex.length), Tex)
-        case _: LengthBased => throw new IllegalArgumentException(s"${size.units} are not currently supported.")
-      }
-    }
-
-    def toDTex(size: Size): Size = {
-      size.units match {
-        case Denier => new Size(size.value * (DTex.length / Denier.length), DTex)
-        case Tex => new Size(size.value * (DTex.length / Tex.length), DTex)
-        case DTex => new Size(size.value, DTex)
-        case _: LengthBased => throw new IllegalArgumentException(s"${size.units} are not currently supported.")
       }
     }
   }
